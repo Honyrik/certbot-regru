@@ -20,14 +20,14 @@ with open('README.md') as f:
     long_description = f.read()
 
 setup(
-    name='certbot-regru',
+    name='certbot-regru-freebsd',
     version=__version__,
     description="Reg.ru DNS authenticator plugin for Certbot",
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/free2er/certbot-regru',
-    author="Max Pryakhin",
-    author_email='m.pryakhin@gmail.com',
+    url='https://github.com/Honyrik/certbot-regru',
+    author="Honyrik",
+    author_email='honyrik@gmail.com',
     license='MIT',
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     classifiers=[
@@ -56,8 +56,8 @@ setup(
     include_package_data=True,
     entry_points={
         'certbot.plugins': [
-            'dns = certbot_regru.dns:Authenticator',
+            'dns-regru = certbot_regru_freebsd.dns:Authenticator',
         ],
     },
-    test_suite='certbot_regru',
+    test_suite='certbot_regru_freebsd',
 )
