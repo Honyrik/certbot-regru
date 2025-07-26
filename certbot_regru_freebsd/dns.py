@@ -80,12 +80,9 @@ class _RegRuClient(object):
         self.http = _HttpClient()
         self.cert = cert
         self.key = key
+        self.username = username
+        self.password = password
         self.options = {
-            'username': username,
-            'password': password,
-            'io_encoding': 'utf8',
-            'show_input_params': 1,
-            'output_format': 'json',
             'input_format': 'json',
         }
 
@@ -103,8 +100,8 @@ class _RegRuClient(object):
             logger.debug('Attempting to add record: %s', data)
             response = self.http.send('https://api.reg.ru/api/regru2/zone/add_txt', data, self.cert, self.key)
         except requests.exceptions.RequestException as e:
-            logger.error('Encountered error adding TXT record: %d %s', e, e)
-            raise errors.PluginError('Error communicating with the Reg.ru API: {0}'.format(e))
+            logger.error('Encountered error adding TXT record: %d %s', e.response.status_code, e.response.text)
+            raise errors.PluginError('Error communicating with the Reg.ru API: {0}'.format(e.response.status_code))
 
         if 'result' not in response or response['result'] != 'success':
             logger.error('Encountered error adding TXT record: %s', response)
@@ -131,7 +128,7 @@ class _RegRuClient(object):
             logger.debug('Attempting to delete record: %s', data)
             response = self.http.send('https://api.reg.ru/api/regru2/zone/remove_record', data, self.cert, self.key)
         except requests.exceptions.RequestException as e:
-            logger.warning('Encountered error deleting TXT record: %s', e)
+            logger.warning('Encountered error deleting TXT record: %d %s', e.response.status_code, e.response.text)
             return
 
         if 'result' not in response or response['result'] != 'success':
@@ -149,9 +146,11 @@ class _RegRuClient(object):
         :rtype: dict
         """
         pieces = domain.split('.')
-
         input_data['subdomain'] = '.'.join(pieces[:-2])
         input_data['domains'] = [{'dname': '.'.join(pieces[-2:])}]
+        input_data['output_content_type'] = 'json'
+        input_data['username'] = self.username
+        input_data['password'] = self.password
 
         data = self.options.copy()
         data.update({'input_data': json.dumps(input_data)})
