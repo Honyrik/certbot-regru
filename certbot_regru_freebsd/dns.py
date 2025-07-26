@@ -1,5 +1,6 @@
 """DNS Authenticator for Reg.ru DNS."""
 import logging
+from typing import Callable
 
 import json
 import os
@@ -29,8 +30,9 @@ class Authenticator(dns_common.DNSAuthenticator):
         self.credentials = None
 
     @classmethod
-    def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
-        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=300)
+    def add_parser_arguments(cls, add: Callable[..., None],
+                             default_propagation_seconds: int = 10) -> None:
+        super().add_parser_arguments(add, default_propagation_seconds)
         add('credentials', help='Path to Reg.ru credentials INI file', default='/usr/local/etc/letsencrypt/regru.ini')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
