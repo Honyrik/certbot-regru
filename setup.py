@@ -4,9 +4,9 @@ from setuptools import find_packages
 from certbot_regru import __version__
 
 install_requires = [
-    'acme>=0.21.1',
-    'certbot>=0.21.1',
-    'requests>=2.9.1',
+    'acme>=4.1.1',
+    'certbot>=4.1.1',
+    'requests>=2.32.4',
     'mock',
     'setuptools',
     'zope.interface',

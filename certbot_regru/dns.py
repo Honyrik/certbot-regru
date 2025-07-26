@@ -2,6 +2,7 @@
 import logging
 
 import json
+import os
 import requests
 
 import zope.interface
@@ -29,7 +30,7 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
-        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=120)
+        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=300)
         add('credentials', help='Path to Reg.ru credentials INI file', default='/usr/local/etc/letsencrypt/regru.ini')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
@@ -158,7 +159,7 @@ class _HttpClient(object):
         :param dict data: Dictionary (will be form-encoded) to send in the body of the :class:`Request`.
         :raises requests.exceptions.RequestException: if an error occurs communicating with HTTP server
         """
-        if cert and key:
+        if cert and key and os.path.exists(cert) and os.path.exists(key):
             response = requests.post(url, data=data, cert=(cert, key))
         else:
             response = requests.post(url, data=data)
