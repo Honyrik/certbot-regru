@@ -30,7 +30,7 @@ class Authenticator(dns_common.DNSAuthenticator):
     @classmethod
     def add_parser_arguments(cls, add):  # pylint: disable=arguments-differ
         super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds=120)
-        add('credentials', help='Path to Reg.ru credentials INI file', default='/etc/letsencrypt/regru.ini')
+        add('credentials', help='Path to Reg.ru credentials INI file', default='/usr/local/etc/letsencrypt/regru.ini')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
         return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using ' + \
@@ -43,6 +43,8 @@ class Authenticator(dns_common.DNSAuthenticator):
             {
                 'username': 'Username of the Reg.ru account.',
                 'password': 'Password of the Reg.ru account.',
+                'cert': 'Certificate of the Reg.ru account.',
+                'key': 'Key of the Reg.ru account.',
             }
         )
 
@@ -53,7 +55,7 @@ class Authenticator(dns_common.DNSAuthenticator):
         self._get_regru_client().del_txt_record(validation_name, validation)
 
     def _get_regru_client(self):
-        return _RegRuClient(self.credentials.conf('username'), self.credentials.conf('password'))
+        return _RegRuClient(self.credentials.conf('username'), self.credentials.conf('password'), self.credentials.conf('cert'), self.credentials.conf('key'))
 
 
 class _RegRuClient(object):
@@ -61,8 +63,10 @@ class _RegRuClient(object):
     Encapsulates all communication with the Reg.ru
     """
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, cert, key):
         self.http = _HttpClient()
+        self.cert = cert
+        self.key = key
         self.options = {
             'username': username,
             'password': password,
@@ -84,7 +88,7 @@ class _RegRuClient(object):
 
         try:
             logger.debug('Attempting to add record: %s', data)
-            response = self.http.send('https://api.reg.ru/api/regru2/zone/add_txt', data)
+            response = self.http.send('https://api.reg.ru/api/regru2/zone/add_txt', data, self.cert, self.key)
         except requests.exceptions.RequestException as e:
             logger.error('Encountered error adding TXT record: %d %s', e, e)
             raise errors.PluginError('Error communicating with the Reg.ru API: {0}'.format(e))
@@ -112,7 +116,7 @@ class _RegRuClient(object):
 
         try:
             logger.debug('Attempting to delete record: %s', data)
-            response = self.http.send('https://api.reg.ru/api/regru2/zone/remove_record', data)
+            response = self.http.send('https://api.reg.ru/api/regru2/zone/remove_record', data, self.cert, self.key)
         except requests.exceptions.RequestException as e:
             logger.warning('Encountered error deleting TXT record: %s', e)
             return
@@ -147,15 +151,17 @@ class _HttpClient(object):
     Encapsulates HTTP requests
     """
 
-    def send(self, url, data):
+    def send(self, url, data, cert, key):
         """
         Sends a POST request.
         :param str url: URL for the new :class:`Request` object.
         :param dict data: Dictionary (will be form-encoded) to send in the body of the :class:`Request`.
         :raises requests.exceptions.RequestException: if an error occurs communicating with HTTP server
         """
-
-        response = requests.post(url, data=data)
+        if cert and key:
+            response = requests.post(url, data=data, cert=(cert, key))
+        else:
+            response = requests.post(url, data=data)
         response.raise_for_status()
 
         return response.json()

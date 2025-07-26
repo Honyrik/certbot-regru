@@ -13,7 +13,7 @@ install_requires = [
 ]
 
 data_files = [
-    ('/etc/letsencrypt', ['regru.ini'])
+    ('/usr/local/etc/letsencrypt', ['regru.ini'])
 ]
 
 with open('README.md') as f:
