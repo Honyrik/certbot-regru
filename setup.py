@@ -1,7 +1,7 @@
 from setuptools import setup
 from setuptools import find_packages
 
-from certbot_regru import __version__
+from certbot_regru_freebsd import __version__
 
 install_requires = [
     'acme>=4.1.1',
