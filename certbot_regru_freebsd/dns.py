@@ -1,6 +1,6 @@
 """DNS Authenticator for Reg.ru DNS."""
 import logging
-from typing import Callable
+from typing import Callable, Optional, Any
 
 import json
 import os
@@ -8,6 +8,7 @@ import requests
 
 import zope.interface
 
+from certbot.plugins.dns_common import CredentialsConfiguration
 from certbot import errors
 from certbot import interfaces
 from certbot.plugins import dns_common
@@ -25,19 +26,27 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     description = 'Obtain certificates using a DNS TXT record (if you are using Reg.ru for DNS).'
 
-    def __init__(self, *args, **kwargs):
-        super(Authenticator, self).__init__(*args, **kwargs)
-        self.credentials = None
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.credentials: Optional[CredentialsConfiguration] = None
 
     @classmethod
     def add_parser_arguments(cls, add: Callable[..., None],
                              default_propagation_seconds: int = 10) -> None:
-        super().add_parser_arguments(add, default_propagation_seconds)
+        super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds)
         add('credentials', help='Path to Reg.ru credentials INI file', default='/usr/local/etc/letsencrypt/regru.ini')
 
     def more_info(self):  # pylint: disable=missing-docstring,no-self-use
         return 'This plugin configures a DNS TXT record to respond to a dns-01 challenge using ' + \
                'the Reg.ru API.'
+
+    def _validate_credentials(self, credentials: CredentialsConfiguration) -> None:
+        password = credentials.conf('password')
+        username = credentials.conf('username')
+
+        if not password or not username:
+            raise errors.PluginError('{}: Either password and username are required.'
+                                     ' (see {})'.format(credentials.confobj.filename))
 
     def _setup_credentials(self):
         self.credentials = self._configure_credentials(
@@ -48,7 +57,8 @@ class Authenticator(dns_common.DNSAuthenticator):
                 'password': 'Password of the Reg.ru account.',
                 'cert': 'Certificate of the Reg.ru account.',
                 'key': 'Key of the Reg.ru account.',
-            }
+            },
+            self._validate_credentials,
         )
 
     def _perform(self, domain, validation_name, validation):
