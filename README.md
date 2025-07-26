@@ -35,24 +35,24 @@ For older Ubuntu distributions check out this PPA:
 
 Request new certificates via a certbot invocation like this:
 
-    sudo certbot certonly --dns-regru -d sub.domain.tld -d *.wildcard.tld
+    sudo certbot certonly -a dns-regru -d sub.domain.tld -d *.wildcard.tld
 
 Renewals will automatically be performed using the same authenticator and credentials by certbot.
 
 ## Command Line Options
 
 ```
- --certbot-regru:dns-propagation-seconds PROPAGATION_SECONDS
+ --dns-regru-propagation-seconds PROPAGATION_SECONDS
                         The number of seconds to wait for DNS to propagate
                         before asking the ACME server to verify the DNS record.
                         (default: 300)
- --certbot-regru:dns-credentials PATH_TO_CREDENTIALS
+ --dns-regru-credentials PATH_TO_CREDENTIALS
                         Path to Reg.ru account credentials INI file
                         (default: /usr/local/etc/letsencrypt/regru.ini)
 
 ```
 
-See also `certbot --help certbot-regru:dns` for further information.
+See also `certbot --help dns-regru` for further information.
 
 ## Removal
 
