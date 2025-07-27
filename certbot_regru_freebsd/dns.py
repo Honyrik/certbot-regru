@@ -32,7 +32,7 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     @classmethod
     def add_parser_arguments(cls, add: Callable[..., None],
-                             default_propagation_seconds: int = 300) -> None:
+                             default_propagation_seconds: int = 120) -> None:
         super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds)
         add('credentials', help='Path to Reg.ru credentials INI file', default='/usr/local/etc/letsencrypt/regru.ini')
 

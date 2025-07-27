@@ -45,7 +45,7 @@ Renewals will automatically be performed using the same authenticator and creden
  --dns-regru-propagation-seconds PROPAGATION_SECONDS
                         The number of seconds to wait for DNS to propagate
                         before asking the ACME server to verify the DNS record.
-                        (default: 300)
+                        (default: 120)
  --dns-regru-credentials PATH_TO_CREDENTIALS
                         Path to Reg.ru account credentials INI file
                         (default: /usr/local/etc/letsencrypt/regru.ini)
