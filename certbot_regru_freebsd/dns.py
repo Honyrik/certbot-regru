@@ -60,9 +60,7 @@ class Authenticator(dns_common.DNSAuthenticator):
             'path to Reg.ru credentials INI file',
             {
                 'username': 'Username of the Reg.ru account.',
-                'password': 'Password of the Reg.ru account.',
-                'cert': 'Certificate of the Reg.ru account.',
-                'key': 'Key of the Reg.ru account.',
+                'password': 'Password of the Reg.ru account.'
             },
             self._validate_credentials,
         )
