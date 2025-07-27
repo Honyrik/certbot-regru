@@ -32,7 +32,7 @@ class Authenticator(dns_common.DNSAuthenticator):
 
     @classmethod
     def add_parser_arguments(cls, add: Callable[..., None],
-                             default_propagation_seconds: int = 10) -> None:
+                             default_propagation_seconds: int = 300) -> None:
         super(Authenticator, cls).add_parser_arguments(add, default_propagation_seconds)
         add('credentials', help='Path to Reg.ru credentials INI file', default='/usr/local/etc/letsencrypt/regru.ini')
 
@@ -43,9 +43,15 @@ class Authenticator(dns_common.DNSAuthenticator):
     def _validate_credentials(self, credentials: CredentialsConfiguration) -> None:
         password = credentials.conf('password')
         username = credentials.conf('username')
+        cert = credentials.conf('cert')
+        key = credentials.conf('key')
 
         if not password or not username:
             raise errors.PluginError('{}: Either password and username are required.'
+                                     ' (see {})'.format(credentials.confobj.filename))
+
+        if cert and key and (not os.path.exists(cert) or not os.path.exists(key)):
+            raise errors.PluginError('{}: Either cert and key not found.'
                                      ' (see {})'.format(credentials.confobj.filename))
 
     def _setup_credentials(self):

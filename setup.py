@@ -6,7 +6,7 @@ from certbot_regru_freebsd import __version__
 install_requires = [
     'acme>=4.1.1',
     'certbot>=4.1.1',
-    'requests>=2.32.4',
+    'requests>=2.30.0',
     'mock',
     'setuptools',
     'zope.interface',
